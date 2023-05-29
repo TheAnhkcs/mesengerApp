@@ -442,6 +442,8 @@
 				DEVELOPMENT_TEAM = AYALL35JPR;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = mesenger01/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Please allow accsess to take a profile picture";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Please allow accsess to select a photo for you profile";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -472,6 +474,8 @@
 				DEVELOPMENT_TEAM = AYALL35JPR;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = mesenger01/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Please allow accsess to take a profile picture";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Please allow accsess to select a photo for you profile";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
