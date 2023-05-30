@@ -6,8 +6,10 @@
 //
 
 import UIKit
+import Firebase
 import FirebaseAuth
 import FBSDKLoginKit
+import GoogleSignIn
 
 class LoginViewController: UIViewController {
 
@@ -77,6 +79,12 @@ class LoginViewController: UIViewController {
         return fbButton
     }()
     
+    private let ggLoginButtun: GIDSignInButton = {
+        let ggButton = GIDSignInButton()
+        ggButton.addTarget(self, action: #selector(ggButtonDidTap), for: .touchUpInside)
+        return ggButton
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "LOG IN"
@@ -90,6 +98,7 @@ class LoginViewController: UIViewController {
         scrollView.addSubview(passwordTextField)
         scrollView.addSubview(loginButton)
         scrollView.addSubview(fbLoginButton)
+        scrollView.addSubview(ggLoginButtun)
         
         emailTextField.delegate = self
         passwordTextField.delegate = self
@@ -104,9 +113,22 @@ class LoginViewController: UIViewController {
         emailTextField.frame = CGRect(x: 30, y: imageView.bottom + 100, width: scrollView.width - 60, height: 52)
         passwordTextField.frame = CGRect(x: 30, y: emailTextField.bottom + 10, width: scrollView.width - 60, height: 52)
         loginButton.frame = CGRect(x: 150, y: passwordTextField.bottom + 30, width: scrollView.width - 300, height: 52)
-        fbLoginButton.center = scrollView.center
+        
+        fbLoginButton.frame.size.width = passwordTextField.width
+        fbLoginButton.frame.size.height = 44
+        fbLoginButton.frame.origin.x = passwordTextField.frame.minX
         fbLoginButton.frame.origin.y = loginButton.bottom + 20
         fbLoginButton.delegate = self
+        
+        ggLoginButtun.frame.size.width = fbLoginButton.frame.width + 6
+        ggLoginButtun.frame.size.height = fbLoginButton.frame.height
+        ggLoginButtun.frame.origin.x = fbLoginButton.frame.minX - 3
+        ggLoginButtun.frame.origin.y = fbLoginButton.bottom + 5
+        
+        
+        
+        
+        
     }
     
     @objc private func loginButtonTapped() {
@@ -130,6 +152,50 @@ class LoginViewController: UIViewController {
             print("Loggeg In User: \(user)")
             strongSelf.navigationController?.dismiss(animated: true)
         }
+    }
+    
+    @objc private func ggButtonDidTap() {
+        if GIDSignIn.sharedInstance.currentUser  == nil {
+            GIDSignIn.sharedInstance.signIn(withPresenting: self) { [weak self] (result, error) in
+                guard let strongSelf = self else {return}
+                guard error == nil else {
+                    if let error = error {
+                        print("Failed to sign in google server ")
+                    }
+                    return
+                }
+                
+                guard let user = result?.user,
+                    let idToken = user.idToken?.tokenString
+                  else {
+                    print("User information authentication failed")
+                    return
+                  }
+                
+                if let email = user.profile?.email.replacingOccurrences(of: ".", with: "-"), let firstName = user.profile?.givenName, let lastName = user.profile?.familyName {
+                    DatabaseManager.shared.userExists(with: email) { exists in
+                    if !exists {
+                        DatabaseManager.shared.insertUser(with: ChatAppUser(firstName: firstName, lastName: lastName, emailAddress: email))
+                    }
+                }
+            }
+                
+                let credential = GoogleAuthProvider.credential(withIDToken: idToken,
+                                                                 accessToken: user.accessToken.tokenString)
+                
+                FirebaseAuth.Auth.auth().signIn(with: credential) {(authResult, error) in
+                    guard let result = authResult, error == nil else {
+                        print("Failed to log in user with credential :\(credential)")
+                        return
+                    }
+                    let user = result.user
+                    print("Loggeg In User: \(user)")
+                    strongSelf.navigationController?.dismiss(animated: true)
+                }
+               
+                
+        }
+    }
     }
     
     func alertUserLoginError() {
