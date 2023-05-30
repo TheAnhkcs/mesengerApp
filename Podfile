@@ -10,9 +10,11 @@ pod 'FBSDKCoreKit/Swift'
 pod 'FBSDKLoginKit/Swift'
 pod 'FBSDKShareKit/Swift'
 
+
 pod 'Firebase/Core'
 pod 'Firebase/Auth'
 pod 'Firebase/Database'
+pod 'Firebase/Storage'
 
 pod 'GoogleSignIn'
 

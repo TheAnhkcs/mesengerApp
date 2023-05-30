@@ -185,7 +185,7 @@ class RegisterViewController: UIViewController {
         
         spinner.show(in: view)
         
-        let safeEmail = email.replacingOccurrences(of: ".", with: "-")
+        let safeEmail = email
         DatabaseManager.shared.userExists(with: safeEmail) { [weak self] exists in
             guard let strongSelf = self else {return}
             DispatchQueue.main.async {
@@ -203,7 +203,24 @@ class RegisterViewController: UIViewController {
                     return
                 }
                 
-                DatabaseManager.shared.insertUser(with: ChatAppUser(firstName: firstName, lastName: lastName, emailAddress: safeEmail))
+                let chatUser = ChatAppUser(firstName: firstName, lastName: lastName, emailAddress: safeEmail)
+                DatabaseManager.shared.insertUser(with: chatUser) { success in
+                    if success {
+                        guard let image = strongSelf.imageView.image, let data = image.pngData() else {
+                            return
+                        }
+                        let fileName = chatUser.profilePictureFileName
+                        StorageManager.shared.uploadProfilePicture(with: data, fileName: fileName) { (result: Result<String, Error>) in
+                            switch result {
+                            case .success(let downloadUrl):
+                                UserDefaults.standard.set(downloadUrl, forKey: "profile_picture_url")
+                                print(downloadUrl)
+                            case .failure(let error):
+                                print("Storagemânger error: \(error)")
+                            }
+                        }
+                    }
+                }
                 strongSelf.navigationController?.popViewController(animated: true)
             }
         }
