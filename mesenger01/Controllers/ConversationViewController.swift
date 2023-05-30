@@ -19,7 +19,7 @@ class ConversationViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        validateAuth()
+//        validateAuth()
     }
     
     private func validateAuth() {
