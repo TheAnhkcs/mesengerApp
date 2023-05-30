@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5A5D850B2A25C09E00A3F537 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5A5D850A2A25C09E00A3F537 /* GoogleService-Info.plist */; };
 		5ABE502D2A23C39000EC0925 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ABE502C2A23C39000EC0925 /* AppDelegate.swift */; };
 		5ABE502F2A23C39000EC0925 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ABE502E2A23C39000EC0925 /* SceneDelegate.swift */; };
 		5ABE50342A23C39000EC0925 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5ABE50322A23C39000EC0925 /* Main.storyboard */; };
 		5ABE50362A23C39100EC0925 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5ABE50352A23C39100EC0925 /* Assets.xcassets */; };
 		5ABE50392A23C39100EC0925 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5ABE50372A23C39100EC0925 /* LaunchScreen.storyboard */; };
-		5ABE50812A23CDC900EC0925 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5ABE50802A23CDC900EC0925 /* GoogleService-Info.plist */; };
 		5ABE508B2A23CEA600EC0925 /* NewConversationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ABE50832A23CEA600EC0925 /* NewConversationViewController.swift */; };
 		5ABE508C2A23CEA600EC0925 /* PhotoViewerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ABE50842A23CEA600EC0925 /* PhotoViewerViewController.swift */; };
 		5ABE508D2A23CEA600EC0925 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ABE50852A23CEA600EC0925 /* ProfileViewController.swift */; };
@@ -28,6 +28,7 @@
 
 /* Begin PBXFileReference section */
 		1274553BE886A4F27EB8BA05 /* Pods_mesenger01.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_mesenger01.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A5D850A2A25C09E00A3F537 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5ABE50292A23C39000EC0925 /* mesenger01.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mesenger01.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5ABE502C2A23C39000EC0925 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5ABE502E2A23C39000EC0925 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -35,7 +36,6 @@
 		5ABE50352A23C39100EC0925 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5ABE50382A23C39100EC0925 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		5ABE503A2A23C39100EC0925 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		5ABE50802A23CDC900EC0925 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5ABE50832A23CEA600EC0925 /* NewConversationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewConversationViewController.swift; sourceTree = "<group>"; };
 		5ABE50842A23CEA600EC0925 /* PhotoViewerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoViewerViewController.swift; sourceTree = "<group>"; };
 		5ABE50852A23CEA600EC0925 /* ProfileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
@@ -94,7 +94,7 @@
 			isa = PBXGroup;
 			children = (
 				5ABE509C2A23E25700EC0925 /* mesenger01.entitlements */,
-				5ABE50802A23CDC900EC0925 /* GoogleService-Info.plist */,
+				5A5D850A2A25C09E00A3F537 /* GoogleService-Info.plist */,
 				5ABE502C2A23C39000EC0925 /* AppDelegate.swift */,
 				5ABE502E2A23C39000EC0925 /* SceneDelegate.swift */,
 				5ABE50972A23CF3900EC0925 /* DatabaseManager.swift */,
@@ -224,7 +224,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5ABE50392A23C39100EC0925 /* LaunchScreen.storyboard in Resources */,
-				5ABE50812A23CDC900EC0925 /* GoogleService-Info.plist in Resources */,
+				5A5D850B2A25C09E00A3F537 /* GoogleService-Info.plist in Resources */,
 				5ABE50362A23C39100EC0925 /* Assets.xcassets in Resources */,
 				5ABE50342A23C39000EC0925 /* Main.storyboard in Resources */,
 			);

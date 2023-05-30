@@ -8,6 +8,7 @@
 import UIKit
 import Firebase
 import FBSDKCoreKit
+import GoogleSignIn
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -18,6 +19,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     application,
                     didFinishLaunchingWithOptions: launchOptions
                 )
+        
+        if let clientID = FirebaseApp.app()?.options.clientID {
+            let config = GIDConfiguration(clientID: clientID)
+            GIDSignIn.sharedInstance.configuration = config
+        }
+        
+        
         UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).backgroundColor = UIColor.clear
         return true
     }
@@ -47,6 +55,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 sourceApplication: options[UIApplication.OpenURLOptionsKey.sourceApplication] as? String,
                 annotation: options[UIApplication.OpenURLOptionsKey.annotation]
             )
+            
+            return GIDSignIn.sharedInstance.handle(url)
         } 
 
 
