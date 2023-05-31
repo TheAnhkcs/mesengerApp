@@ -20,6 +20,17 @@ class ProfileViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.tableHeaderView = createTableViewHeader()
+        
+        
+      
+        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        let email = UserDefaults.standard.value(forKey: "email")
+        print(email)
     }
     
     func createTableViewHeader() -> UIView? {
@@ -67,6 +78,7 @@ class ProfileViewController: UIViewController {
             DispatchQueue.main.async {
                 let image = UIImage(data: data)
                 imageView.image = image
+                self.tableView.reloadData()
             }
            
 

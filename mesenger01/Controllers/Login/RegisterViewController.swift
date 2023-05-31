@@ -178,6 +178,8 @@ class RegisterViewController: UIViewController {
         passwordTextField.resignFirstResponder()
         reEnterPasswordTextField.resignFirstResponder()
         
+       
+        
         guard let firstName = firstNametField.text, let lastName = lastNameField.text, let email = emailTextField.text, let password = passwordTextField.text, let reEnterPass = reEnterPasswordTextField.text, !firstName.isEmpty, !lastName.isEmpty, !email.isEmpty, !password.isEmpty, email.contains("@gmail.com"), password.count >= 6, reEnterPass == password else {
             alertUserRegisterError()
             return
@@ -203,20 +205,24 @@ class RegisterViewController: UIViewController {
                     return
                 }
                 
-                let chatUser = ChatAppUser(firstName: firstName, lastName: lastName, emailAddress: safeEmail)
+                let chatUser = ChatAppUser(firstName: firstName, lastName: lastName, emailAddress: email)
+                
                 DatabaseManager.shared.insertUser(with: chatUser) { success in
+                    
                     if success {
                         guard let image = strongSelf.imageView.image, let data = image.pngData() else {
                             return
                         }
+                        
+                        print("\(data)")
                         let fileName = chatUser.profilePictureFileName
                         StorageManager.shared.uploadProfilePicture(with: data, fileName: fileName) { (result: Result<String, Error>) in
                             switch result {
                             case .success(let downloadUrl):
                                 UserDefaults.standard.set(downloadUrl, forKey: "profile_picture_url")
-                                print(downloadUrl)
+                                print("downloadUrl is \(downloadUrl)")
                             case .failure(let error):
-                                print("Storagemânger error: \(error)")
+                                print("StorageManager error: \(error)")
                             }
                         }
                     }

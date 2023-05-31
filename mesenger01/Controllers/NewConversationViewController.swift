@@ -10,6 +10,8 @@ import JGProgressHUD
 
 class NewConversationViewController: UIViewController {
     
+    public var completion: (([String:String]) -> Void)?
+    
     private let spinner = JGProgressHUD(style: .dark)
     
     private var users = [[String:String]]()
@@ -20,8 +22,8 @@ class NewConversationViewController: UIViewController {
           let searchController = UISearchController(searchResultsController: nil)
           searchController.obscuresBackgroundDuringPresentation = false // che khuất background
           searchController.hidesNavigationBarDuringPresentation = false
-//          searchController.searchBar.showsCancelButton = true
-        searchController.automaticallyShowsCancelButton = true
+          searchController.searchBar.showsCancelButton = true
+//        searchController.automaticallyShowsCancelButton = true
           searchController.searchBar.returnKeyType = .done
         searchController.searchBar.becomeFirstResponder()
           searchController.searchBar.placeholder = "Search for User..."
@@ -54,7 +56,7 @@ class NewConversationViewController: UIViewController {
         navigationItem.searchController = searchController
         view.addSubview(noResultsLAble)
         view.addSubview(tableView)
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+       
         tableView.delegate = self
         tableView.dataSource = self
     }
@@ -146,5 +148,15 @@ extension NewConversationViewController: UITableViewDelegate, UITableViewDataSou
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        searchController.isActive = false
+        let targetUserData = results[indexPath.row]
+        
+        self.dismiss(animated: true) { [weak self] in
+            guard let self = self else {return}
+            self.completion?(targetUserData)
+        }
+        
+        
+      
     }
 }

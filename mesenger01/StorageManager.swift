@@ -27,6 +27,9 @@ final class StorageManager {
             }
             
             self.storage.child("image/\(fileName)").downloadURL { url, error in
+                
+                print("url downloadPicture is \(url)")
+                
                 guard let url = url else {
                     completion(.failure(StorgeError.failedToGetDownloadUrl))
                     return
