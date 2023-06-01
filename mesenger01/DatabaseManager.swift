@@ -7,6 +7,7 @@
 
 import Foundation
 import FirebaseDatabase
+import MessageKit
 
 
 final class DatabaseManager {
@@ -317,13 +318,13 @@ extension DatabaseManager {
     //fetches and returns al convesation for the user with passed email
     public func getAllConvesations(for email:String, completion: @escaping (Result<[Conversation], Error>)-> Void) {
         
-        print("44444444444444444444444")
+        
         database.child("\(email)/conversations").observe(.value) { snapshot in
             guard let value = snapshot.value as? [[String:Any]] else {
                 completion(.failure(DatabaseError.failedToFetch))
                 return
             }
-            print("33333333333333333333333333333")
+           
             let conversations :[Conversation] = value.compactMap { dictionary in
                 guard let converastionID = dictionary["id"] as? String,
                       let name = dictionary["name"] as? String,
@@ -363,11 +364,28 @@ extension DatabaseManager {
                 let dataF = ChatsViewController.dateFormatter.date(from: date) else {
                    return nil
                }
-                         
+                print("type is \(type)")
+                var kind: MessageKind?
+                if type == "photo" {
+                    guard let imageUrl = URL(string: content),
+                          let placeholder = UIImage(systemName: "plus") else {
+                        return nil
+                    }
+                    
+                   
+                    let meia = Media(url: imageUrl, image: nil, placeholderImage: placeholder, size: CGSize(width: 200, height: 200))
+                    kind = .photo(meia)
+                }
+                else {
+                    kind = .text(content)
+                }
+                guard let finalKind = kind else {
+                    return nil
+                }
                 let sender = Sender(photoUrl: "", senderId: senderMail, displayName: name)
-                return Message(sender: sender, messageId: content, sentDate: dataF, kind: .text(content))
+                return Message(sender: sender, messageId: content, sentDate: dataF, kind: finalKind)
             }
-            
+            print("allMessage is \(messages)")
             completion(.success(messages))
         }
     }
@@ -401,7 +419,10 @@ extension DatabaseManager {
                 message = messageText
             case .attributedText(_):
                 break
-            case .photo(_):
+            case .photo(let mediaItem):
+                if let itemStr = mediaItem.url?.absoluteString {
+                message = itemStr
+                }
                 break
             case .video(_):
                 break
