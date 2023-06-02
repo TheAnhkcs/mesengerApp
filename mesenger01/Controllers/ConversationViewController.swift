@@ -56,12 +56,13 @@ class ConversationViewController: UIViewController {
         
         setUpTableView()
         fetchConversations()
-        startListeningForConversation()
+//        startListeningForConversation()
         
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         validateAuth()
+        startListeningForConversation()
 
     }
     	
@@ -120,9 +121,13 @@ class ConversationViewController: UIViewController {
     
     @objc private func didTapComposeButton() {
         let vc = NewConversationViewController()
-        vc.completion = {result in
-            
+        vc.completion = {[weak self] result in
+            guard let self = self else {return}
+            if let index = self.conversations.firstIndex(where: {$0.otherUserEmail == result.email}) {
+                self.openExistConversation(with: index)
+            }else {
             self.createdNewConversation(result: result)
+            }
         }
         
                 let naVC = UINavigationController(rootViewController: vc)
@@ -130,6 +135,17 @@ class ConversationViewController: UIViewController {
         present(naVC, animated: true)
         
     }
+    
+    private func openExistConversation(with index:Int) {
+        let model = conversations[index]
+        let vc = ChatsViewController(with: model.otherUserEmail, id: model.id)
+        vc.title = model.name
+        vc.isNewConversation = false
+        vc.navigationItem.largeTitleDisplayMode = .never
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    
     
     private func createdNewConversation(result:SearchResult) {
         let name = result.name
@@ -172,6 +188,26 @@ extension ConversationViewController: UITableViewDelegate, UITableViewDataSource
         return 90
     }
     
+    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        return .delete
+    }
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        
+        let conversationId = self.conversations[indexPath.row].id
+        if editingStyle == .delete {
+            tableView.beginUpdates()
+            
+            DatabaseManager.shared.deleteConversation(with: conversationId) { [weak self] success in
+                guard let self = self else {return}
+                if success {
+                self.conversations.remove(at: indexPath.row)
+                self.tableView.deleteRows(at: [indexPath], with: .automatic)
+            }
+           
+            
+            tableView.endUpdates()
+        }
+    }
 }
-
+}
 
