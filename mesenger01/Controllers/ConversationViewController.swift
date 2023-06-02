@@ -131,10 +131,9 @@ class ConversationViewController: UIViewController {
         
     }
     
-    private func createdNewConversation(result:[String:String]) {
-        guard let name = result["name"], let email = result["email"] else {
-            return
-        }
+    private func createdNewConversation(result:SearchResult) {
+        let name = result.name
+        let email = result.email
         let vc1 = ChatsViewController(with: email, id: nil )
         vc1.isNewConversation = true
         vc1.title = name
@@ -174,3 +173,5 @@ extension ConversationViewController: UITableViewDelegate, UITableViewDataSource
     }
     
 }
+
+

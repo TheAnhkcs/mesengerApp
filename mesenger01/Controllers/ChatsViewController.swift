@@ -9,6 +9,8 @@ import UIKit
 import MessageKit
 import InputBarAccessoryView
 import SDWebImage
+import AVFoundation
+import AVKit
 
 struct Message: MessageType {
     public  var sender: SenderType
@@ -125,11 +127,13 @@ private var messages = [Message]()
     private func presentInputActionSheet() {
         let actionSheet = UIAlertController(title: "Attach Media", message: "What would you like to attach", preferredStyle: .actionSheet)
         actionSheet.addAction(UIAlertAction(title: "Photo", style: .default, handler: { [weak self] _ in
-            self?.presentPhotoInputActionSheet()
+            guard let self = self else {return}
+            self.presentPhotoInputActionSheet()
         }))
         
         actionSheet.addAction(UIAlertAction(title: "Video", style: .default, handler: { [weak self] _ in
-            
+            guard let self = self else {return}
+            self.presentVideoInputActionSheet()
         }))
         actionSheet.addAction(UIAlertAction(title: "Audio", style: .default, handler: { [weak self] _ in
             
@@ -154,6 +158,32 @@ private var messages = [Message]()
             let picker = UIImagePickerController()
             picker.sourceType = .photoLibrary
             picker.delegate = self
+            picker.allowsEditing = true
+            self?.present(picker, animated: true)
+        }))
+      
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        
+        present(actionSheet, animated: true)
+    }
+    
+    private func presentVideoInputActionSheet() {
+        let actionSheet = UIAlertController(title: "Attach Photo", message: "Where would you like to attach a photo from?", preferredStyle: .actionSheet)
+        actionSheet.addAction(UIAlertAction(title: "Camera", style: .default, handler: { [weak self] _ in
+            let picker = UIImagePickerController()
+            picker.sourceType = .camera
+            picker.delegate = self
+            picker.mediaTypes = ["public.movie"]
+            picker.videoQuality = .typeMedium
+            picker.allowsEditing = true
+            self?.present(picker, animated: true)
+        }))
+        
+        actionSheet.addAction(UIAlertAction(title: "Library", style: .default, handler: { [weak self] _ in
+            let picker = UIImagePickerController()
+            picker.sourceType = .photoLibrary
+            picker.delegate = self
+            picker.mediaTypes = ["public.movie"]
             picker.allowsEditing = true
             self?.present(picker, animated: true)
         }))
@@ -196,43 +226,72 @@ extension ChatsViewController: UIImagePickerControllerDelegate, UINavigationCont
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        guard let image = info[UIImagePickerController.InfoKey.editedImage] as? UIImage,
-        let imageData = image.pngData(),
-        let messageId = createMessageId(),
+        guard let messageId = createMessageId(),
         let conversationId = conversationID,
         let name = self.title,
         let selfSender = self.selfSender else {
             return
         }
         
-        let fileName = "photo_message_" + messageId.replacingOccurrences(of: " ", with: "-") + ".png"
-        //Upload image
-        StorageManager.shared.uploadMessagePhoto(with: imageData, fileName: fileName) { [weak self] result in
-            guard let self = self else {return}
-            
-            
-           
-            switch result {
+        
+        if let image = info[.editedImage] as? UIImage,
+           let imageData = image.pngData() {
+            let fileName = "photo_message_" + messageId.replacingOccurrences(of: " ", with: "-") + ".png"
+            //Upload image
+            StorageManager.shared.uploadMessagePhoto(with: imageData, fileName: fileName) { [weak self] result in
+                guard let self = self else {return}
                 
-            case .success(let urlSt):
-                print("Upload message photo \(urlSt)")
-                
-                guard let url = URL(string: urlSt),
-                let palceholder = UIImage(systemName: "plus") else {return}
-                let media = Media(url: url, image: nil, placeholderImage: palceholder, size: .zero)
-                let message = Message(sender: selfSender, messageId: self.createMessageId() ?? "", sentDate: Date(), kind: .photo(media))
-                DatabaseManager.shared.sendMessage(to: conversationId, otherUserEmail: self.otherUserEmail, name: name, newMessage: message) { success in
-                    if success {
-                        print("sent photo message")
-                    }else {
-                        print("Failed sent photo message")
+                switch result {
+                    
+                case .success(let urlSt):
+                    print("Upload message photo \(urlSt)")
+                    
+                    guard let url = URL(string: urlSt),
+                    let palceholder = UIImage(systemName: "plus") else {return}
+                    let media = Media(url: url, image: nil, placeholderImage: palceholder, size: .zero)
+                    let message = Message(sender: selfSender, messageId: self.createMessageId() ?? "", sentDate: Date(), kind: .photo(media))
+                    DatabaseManager.shared.sendMessage(to: conversationId, otherUserEmail: self.otherUserEmail, name: name, newMessage: message) { success in
+                        if success {
+                            print("sent photo message")
+                        }else {
+                            print("Failed sent photo message")
+                        }
                     }
+                case .failure(let error):
+                    print("message photo upload error \(error)")
                 }
-            case .failure(let error):
-                print("message photo upload error \(error)")
             }
         }
+        else if let videoUrl = info[.mediaURL] as? URL {
+        
+            let fileName = "video_message_" + messageId.replacingOccurrences(of: " ", with: "-") + ".mov"
+            StorageManager.shared.uploadMessageVideo(with: videoUrl.absoluteURL, fileName: fileName) { [weak self] result in
+                guard let self = self else {return}
+                print("77777777777777777777777777777777 \(result)")
+                switch result {
+                    
+                case .success(let urlSt):
+                    print("Upload message video \(urlSt)")
+                    
+                    guard let url = URL(string: urlSt),
+                    let palceholder = UIImage(named: "film-roll") else {return}
+                    let media = Media(url: url, image: nil, placeholderImage: palceholder, size: .zero)
+                    let message = Message(sender: selfSender, messageId: self.createMessageId() ?? "", sentDate: Date(), kind: .video(media))
+                    DatabaseManager.shared.sendMessage(to: conversationId, otherUserEmail: self.otherUserEmail, name: name, newMessage: message) { success in
+                        if success {
+                            print("sent photo message")
+                        }else {
+                            print("Failed sent photo message")
+                        }
+                    }
+                case .failure(let error):
+                    print("message photo upload error \(error)")
+                }
+            }
+        }
+        
     }
+
 }
 
 extension ChatsViewController: InputBarAccessoryViewDelegate {
@@ -334,10 +393,20 @@ extension ChatsViewController: MessagesDataSource, MessagesLayoutDelegate, Messa
             
             let vc = PhotoViewerViewController(with: imageUrl)
             self.navigationController?.pushViewController(vc, animated: true)
+        case .video(let media):
+            guard let videoUrl = media.url else {
+                return
+            }
+            
+          let vc = AVPlayerViewController()
+            vc.player = AVPlayer(url: videoUrl)
+            present(vc, animated: true)
         default:
             break
         }
     }
+    
+    
     
     
 }

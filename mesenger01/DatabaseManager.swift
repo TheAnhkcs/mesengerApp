@@ -364,7 +364,7 @@ extension DatabaseManager {
                 let dataF = ChatsViewController.dateFormatter.date(from: date) else {
                    return nil
                }
-                print("type is \(type)")
+                
                 var kind: MessageKind?
                 if type == "photo" {
                     guard let imageUrl = URL(string: content),
@@ -375,6 +375,15 @@ extension DatabaseManager {
                    
                     let meia = Media(url: imageUrl, image: nil, placeholderImage: placeholder, size: CGSize(width: 200, height: 200))
                     kind = .photo(meia)
+                }else if type == "video" {
+                    guard let videoUrl = URL(string: content),
+                          let placeholder = UIImage(named: "film-roll") else {
+                        return nil
+                    }
+                    
+                   
+                    let meia = Media(url: videoUrl, image: nil, placeholderImage: placeholder, size: CGSize(width: 200, height: 200))
+                    kind = .video(meia)
                 }
                 else {
                     kind = .text(content)
@@ -391,6 +400,7 @@ extension DatabaseManager {
     }
     //Send a mesgae with target convesastion and message
     public func sendMessage(to conversation:String, otherUserEmail:String, name:String, newMessage:Message, completion: @escaping (Bool)->Void) {
+        print("99999999999999999999999999999999")
         //add new message to messages
         
         //update sender latest message
@@ -424,7 +434,10 @@ extension DatabaseManager {
                 message = itemStr
                 }
                 break
-            case .video(_):
+            case .video(let mediaItem):
+                if let itemStr = mediaItem.url?.absoluteString {
+                message = itemStr
+                }
                 break
             case .location(_):
                 break
@@ -454,7 +467,7 @@ extension DatabaseManager {
                 "is_read": false,
                 "name": name
             ]
-            
+            print("8888888888888888888888 \(newMessageEntry["content"])")
             currentMessage.append(newMessageEntry)
             self.database.child("\(conversation)/messages").setValue(currentMessage) { error, _ in
                 guard error == nil else {

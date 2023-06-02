@@ -2,6 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSFileProviderDomainUsageDescription</key>
+	<string></string>
+	<key>NSCameraUsageDescription</key>
+	<string>Please allow accsess to take a profile picture</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Please allow accsess to select a profile picture</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Please allow accsess to send audio and video message</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
