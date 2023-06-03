@@ -106,6 +106,7 @@ private var messages = [Message]()
         messagesCollectionView.messagesDisplayDelegate = self
         messageInputBar.delegate = self
         messagesCollectionView.messageCellDelegate = self
+        messagesCollectionView.becomeFirstResponder()
         setupInputButton()
         
     }
@@ -299,7 +300,7 @@ extension ChatsViewController: InputBarAccessoryViewDelegate {
         guard !text.replacingOccurrences(of: " ", with: "").isEmpty, let selfSender = selfSender else {
             return
         }
-        print("sending \(text)")
+        
         //Send message
         
         let message = Message(sender: selfSender, messageId: createMessageId() ?? "", sentDate: Date(), kind: .text(text))
@@ -329,6 +330,9 @@ extension ChatsViewController: InputBarAccessoryViewDelegate {
                 }
             }
         }
+        inputBar.inputTextView.text = ""
+        
+        
     }
     private func createMessageId() -> String? {
         //data, otherEmail, senderEmail , randomInt

@@ -400,7 +400,7 @@ extension DatabaseManager {
     }
     //Send a mesgae with target convesastion and message
     public func sendMessage(to conversation:String, otherUserEmail:String, name:String, newMessage:Message, completion: @escaping (Bool)->Void) {
-        print("99999999999999999999999999999999")
+        
         //add new message to messages
         
         //update sender latest message
@@ -467,7 +467,7 @@ extension DatabaseManager {
                 "is_read": false,
                 "name": name
             ]
-            print("8888888888888888888888 \(newMessageEntry["content"])")
+            
             currentMessage.append(newMessageEntry)
             self.database.child("\(conversation)/messages").setValue(currentMessage) { error, _ in
                 guard error == nil else {
