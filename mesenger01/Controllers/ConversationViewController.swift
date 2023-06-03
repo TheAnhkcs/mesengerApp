@@ -63,7 +63,6 @@ class ConversationViewController: UIViewController {
         super.viewDidAppear(animated)
         validateAuth()
         startListeningForConversation()
-
     }
     	
     override func viewDidLayoutSubviews() {
