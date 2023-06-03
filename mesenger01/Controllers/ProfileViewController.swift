@@ -36,6 +36,9 @@ class ProfileViewController: UIViewController {
             actionSheet.addAction(UIAlertAction(title: "Log Out", style: .destructive, handler: { _ in
                
                 
+                UserDefaults.standard.set(nil, forKey: "email")
+                UserDefaults.standard.set(nil, forKey: "name")
+                
                 FBSDKLoginKit.LoginManager().logOut()
                 GIDSignIn.sharedInstance.signOut()
                 

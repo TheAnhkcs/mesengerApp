@@ -55,7 +55,7 @@ class ConversationViewController: UIViewController {
         view.addSubview(noConversationLable)
         
         setUpTableView()
-        fetchConversations()
+        
 //        startListeningForConversation()
         
     }
@@ -69,6 +69,7 @@ class ConversationViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         tableView.frame = view.bounds
+        noConversationLable.frame = CGRect(x: 0, y: view.height/2, width: view.width, height: 50)
     }
     
    
@@ -88,13 +89,18 @@ class ConversationViewController: UIViewController {
                 
             case .success(let conversations):
                 guard !conversations.isEmpty else {
+                    self.tableView.isHidden = true
+                    self.noConversationLable.isOpaque = false
                     return
                 }
+                tableView.isHidden = false
                 self.conversations = conversations
                 DispatchQueue.main.async {
                     self.tableView.reloadData()
                 }
             case .failure(let error):
+                self.tableView.isHidden = true
+                self.noConversationLable.isOpaque = false
                 print("Failed to get conversation \(error)")
             }
         }
