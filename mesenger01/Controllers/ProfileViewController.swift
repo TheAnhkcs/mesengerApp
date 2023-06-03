@@ -9,14 +9,54 @@ import UIKit
 import FirebaseAuth
 import FBSDKLoginKit
 import GoogleSignIn
+import SDWebImage
+
+enum ProfileViewModelType {
+    case info, logout
+}
+struct ProfileViewModel {
+    let viewModelType: ProfileViewModelType
+    let title:String
+    let handler:(()->Void)?
+}
 
 class ProfileViewController: UIViewController {
 
     @IBOutlet weak var tableView: UITableView!
-    let data = ["Log Out"]
+    var data = [ProfileViewModel]()
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        
+        
+        data.append(ProfileViewModel(viewModelType: .info, title: "Name: \(UserDefaults.standard.value(forKey: "name") as? String ?? "No name")", handler:nil))
+        data.append(ProfileViewModel(viewModelType: .info, title: "Email: \(UserDefaults.standard.value(forKey: "email") as? String ?? "No eamil")", handler:nil))
+        data.append(ProfileViewModel(viewModelType: .logout, title: "Log Out", handler: { [weak self] in
+            guard let self = self else {return}
+            let actionSheet = UIAlertController(title: "", message: "", preferredStyle: .actionSheet)
+            actionSheet.addAction(UIAlertAction(title: "Log Out", style: .destructive, handler: { _ in
+               
+                
+                FBSDKLoginKit.LoginManager().logOut()
+                GIDSignIn.sharedInstance.signOut()
+                
+                do{
+                    try FirebaseAuth.Auth.auth().signOut()
+                    let vc = LoginViewController()
+                    let nav = UINavigationController(rootViewController: vc)
+                    nav.modalPresentationStyle = .fullScreen
+                    nav.navigationBar.backgroundColor = .lightGray
+                   
+                    self.present(nav, animated: false)
+                }catch {
+                    print("Failed to log out")
+                }
+            }))
+            
+            actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+            
+            self.present(actionSheet, animated: true)
+        }))
+        tableView.register(ProfileTableViewCell.self, forCellReuseIdentifier: ProfileTableViewCell.identifier)
         tableView.delegate = self
         tableView.dataSource = self
 //        tableView.tableHeaderView = createTableViewHeader()
@@ -60,7 +100,8 @@ class ProfileViewController: UIViewController {
             switch result {
                 
             case .success(let url):
-                self.downLoadImage(imageView: imageView, url: url)
+                imageView.sd_setImage(with: url, completed: nil)
+                
             case .failure(let error):
                 print("Failed to get downlaod url : \(error)")
             }
@@ -68,60 +109,58 @@ class ProfileViewController: UIViewController {
         return headerView
     }
     func downLoadImage(imageView: UIImageView, url: URL) {
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let data = data, error == nil else {
-                return
-            }
-            
-            
-            DispatchQueue.main.async {
-                let image = UIImage(data: data)
-                imageView.image = image
-                self.tableView.reloadData()
-            }
-           
-
-        }.resume()
+        
+        imageView.sd_setImage(with: url, completed: nil)
+        
     }
 
 }
 
 extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
+        return data.count
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        cell.textLabel?.text = data[indexPath.row]
-        cell.textLabel?.textAlignment = .center
-        cell.textLabel?.textColor = .red
+        let viewModel = data[indexPath.row]
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: ProfileTableViewCell.identifier, for: indexPath) as? ProfileTableViewCell else {
+            return UITableViewCell()
+        }
+        cell.setup(with: viewModel)
         return cell
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
         
-        let actionSheet = UIAlertController(title: "", message: "", preferredStyle: .actionSheet)
-        actionSheet.addAction(UIAlertAction(title: "Log Out", style: .destructive, handler: { [weak self] _ in
-            guard let strongSelf = self else {return}
+        let viewMode = data[indexPath.row].handler?()
+        
+        
+        
+    }
+}
+
+class ProfileTableViewCell :UITableViewCell {
+    
+    static let identifier = "ProfileTableViewCell"
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    public func setup(with viewModel:ProfileViewModel) {
+        self.textLabel?.text = viewModel.title
+        switch viewModel.viewModelType {
             
-            FBSDKLoginKit.LoginManager().logOut()
-            GIDSignIn.sharedInstance.signOut()
+        case .info:
+            self.textLabel?.textAlignment = .left
+            self.selectionStyle = .none
+        case .logout:
             
-            do{
-                try FirebaseAuth.Auth.auth().signOut()
-                let vc = LoginViewController()
-                let nav = UINavigationController(rootViewController: vc)
-                nav.modalPresentationStyle = .fullScreen
-                nav.navigationBar.backgroundColor = .lightGray
-               
-                strongSelf.present(nav, animated: false)
-            }catch {
-                print("Failed to log out")
-            }
-        }))
-        
-        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-        
-        present(actionSheet, animated: true)
-        
+            self.textLabel?.textColor = .red
+            self.textLabel?.textAlignment = .center
+        }
     }
 }

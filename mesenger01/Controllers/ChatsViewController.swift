@@ -11,6 +11,7 @@ import InputBarAccessoryView
 import SDWebImage
 import AVFoundation
 import AVKit
+import CoreLocation
 
 struct Message: MessageType {
     public  var sender: SenderType
@@ -45,6 +46,14 @@ extension MessageKind {
             return "custom"
         }
     }
+}
+
+struct Location: LocationItem {
+    var location: CLLocation
+    
+    var size: CGSize
+    
+    
 }
 
 struct Sender: SenderType {
@@ -139,9 +148,44 @@ private var messages = [Message]()
         actionSheet.addAction(UIAlertAction(title: "Audio", style: .default, handler: { [weak self] _ in
             
         }))
+        actionSheet.addAction(UIAlertAction(title: "Location", style: .default, handler: { [weak self] _ in
+            guard let self = self else {return}
+            self.presentLocationPicker()
+        }))
         actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler:nil))
         
         present(actionSheet, animated: true)
+    }
+    
+    private func presentLocationPicker() {
+        let vc = LocationPickerViewController(coordinate: nil)
+        vc.title = "Pick Location"
+        vc.navigationItem.largeTitleDisplayMode  = .never
+        vc.completion = { [weak self] selectedCoordinate in
+            guard let self = self else {return}
+            guard let messageId = self.createMessageId(), let conversationId = self.conversationID, let name = self.title, let selfSender = self.selfSender else {
+                return
+            }
+            
+            
+            
+            let longitude: Double = selectedCoordinate.longitude
+            let latitude:Double = selectedCoordinate.latitude
+            
+            print("long = \(longitude) / lat = \(latitude)")
+           
+            let media = Location(location: CLLocation(latitude: latitude, longitude: longitude), size: .zero)
+            let message = Message(sender: selfSender, messageId: self.createMessageId() ?? "", sentDate: Date(), kind: .location(media))
+            DatabaseManager.shared.sendMessage(to: conversationId, otherUserEmail: self.otherUserEmail, name: name, newMessage: message) { success in
+                if success {
+                    print("sent location message")
+                }else {
+                    print("Failed sent location message")
+                }
+            }
+        }
+        navigationController?.pushViewController(vc, animated: true)
+        
     }
     
     
@@ -410,7 +454,22 @@ extension ChatsViewController: MessagesDataSource, MessagesLayoutDelegate, Messa
         }
     }
     
-    
+    func didTapMessage(in cell: MessageCollectionViewCell) {
+        guard let indexPath = messagesCollectionView.indexPath(for: cell) else {
+            return
+        }
+        let message = self.messages[indexPath.section]
+        switch message.kind {
+        case .location(let locationData):
+            let coordinate = locationData.location.coordinate
+            let vc = LocationPickerViewController(coordinate: coordinate)
+            vc.title = "Location"
+            self.navigationController?.pushViewController(vc, animated: true)
+       
+        default:
+            break
+        }
+    }
     
     
 }
